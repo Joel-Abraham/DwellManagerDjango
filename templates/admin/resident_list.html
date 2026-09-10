@@ -38,6 +38,14 @@
         {% endfor %}
       </select>
     </div>
+    <div class="filter-group">
+      <label class="form-label">Occupancy</label>
+      <select name="occupancy" class="form-input" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="occupied" {% if current_occupancy == "occupied" %}selected{% endif %}>Occupied</option>
+        <option value="vacant" {% if current_occupancy == "vacant" %}selected{% endif %}>Vacant</option>
+      </select>
+    </div>
     <a href="{% url 'admin_resident_list' %}" class="btn btn-outline btn-sm" style="align-self: flex-end;">Clear</a>
   </form>
 </div>
@@ -60,7 +68,12 @@
       <tbody>
         {% for resident in residents %}
         <tr>
-          <td><strong>{{ resident.full_name }}</strong></td>
+          <td>
+            <strong>{{ resident.full_name }}</strong>
+            {% if not resident.has_portal %}
+              <br><span class="status-badge badge-warning" style="font-size: 0.7rem;">No Portal Account</span>
+            {% endif %}
+          </td>
           <td>{{ resident.username }}</td>
           <td>{{ resident.flat|default:"-" }}</td>
           <td>{{ resident.contact_number|default:"-" }}</td>
@@ -76,6 +89,7 @@
           </td>
           <td>{{ resident.move_in_date|default:"-" }}</td>
           <td class="actions-cell">
+            {% if resident.has_portal %}
             <a href="{% url 'admin_resident_edit' resident.pk %}" class="btn btn-sm btn-outline">Edit</a>
             <a href="{% url 'admin_resident_payments' resident.pk %}" class="btn btn-sm btn-outline" style="border-color: var(--clr-info); color: var(--clr-info);">Payments</a>
             {% if resident.status == 'Active' %}
@@ -83,6 +97,9 @@
               {% csrf_token %}
               <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deactivate this resident?')">Deactivate</button>
             </form>
+            {% endif %}
+            {% else %}
+            <span class="text-muted" style="font-size: 0.85rem;">—</span>
             {% endif %}
           </td>
         </tr>

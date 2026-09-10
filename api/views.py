@@ -156,19 +156,72 @@ def admin_flat_deactivate(request, flat_id):
 
 @admin_required
 def admin_resident_list(request):
-    residents = Resident.objects.filter(role=UserRole.RESIDENT).select_related("flat")
-
-    # Filtering
+    # Filtering parameters
     flat_id = request.GET.get("flat")
     block = request.GET.get("block")
     status_filter = request.GET.get("status")
+    occupancy_filter = request.GET.get("occupancy")
 
+    # --- Portal residents (have a user account) ---
+    portal_residents = Resident.objects.filter(role=UserRole.RESIDENT).select_related("flat")
     if flat_id:
-        residents = residents.filter(flat_id=flat_id)
+        portal_residents = portal_residents.filter(flat_id=flat_id)
     if block:
-        residents = residents.filter(flat__block=block)
+        portal_residents = portal_residents.filter(flat__block=block)
     if status_filter:
-        residents = residents.filter(status=status_filter)
+        portal_residents = portal_residents.filter(status=status_filter)
+
+    # Collect flat IDs that already have a portal resident linked
+    flats_with_portal = set(
+        Resident.objects.filter(role=UserRole.RESIDENT, flat__isnull=False)
+        .values_list("flat_id", flat=True)
+    )
+
+    # --- Flat-only residents (owner_name on flats without a portal account) ---
+    flat_only_qs = Flat.objects.filter(is_active=True).exclude(pk__in=flats_with_portal)
+    if flat_id:
+        flat_only_qs = flat_only_qs.filter(pk=flat_id)
+    if block:
+        flat_only_qs = flat_only_qs.filter(block=block)
+    # When filtering by status, flat-only residents are treated as "Active"
+    if status_filter and status_filter != ResidentStatus.ACTIVE:
+        flat_only_qs = flat_only_qs.none()
+
+    # Build a unified list
+    resident_list = []
+    for r in portal_residents:
+        flat_occupied = r.flat.is_occupied if r.flat else False
+        resident_list.append({
+            "pk": r.pk,
+            "full_name": r.full_name,
+            "username": r.username,
+            "flat": r.flat,
+            "contact_number": r.contact_number,
+            "email": r.email,
+            "status": r.status,
+            "move_in_date": r.move_in_date,
+            "has_portal": True,
+            "is_occupied": flat_occupied,
+        })
+    for flat in flat_only_qs:
+        resident_list.append({
+            "pk": None,
+            "full_name": flat.owner_name,
+            "username": "-",
+            "flat": flat,
+            "contact_number": "-",
+            "email": "-",
+            "status": "Active" if flat.is_occupied else "Inactive",
+            "move_in_date": None,
+            "has_portal": False,
+            "is_occupied": flat.is_occupied,
+        })
+
+    # Apply occupancy filter
+    if occupancy_filter == "occupied":
+        resident_list = [r for r in resident_list if r["is_occupied"]]
+    elif occupancy_filter == "vacant":
+        resident_list = [r for r in resident_list if not r["is_occupied"]]
 
     blocks = (
         Flat.objects.values_list("block", flat=True).distinct().order_by("block")
@@ -179,12 +232,13 @@ def admin_resident_list(request):
         request,
         "admin/resident_list.html",
         {
-            "residents": residents,
+            "residents": resident_list,
             "blocks": blocks,
             "flats": flats,
             "current_flat": flat_id,
             "current_block": block,
             "current_status": status_filter,
+            "current_occupancy": occupancy_filter,
             "status_choices": ResidentStatus.choices,
         },
     )
