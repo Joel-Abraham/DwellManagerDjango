@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Flat Management{% endblock %}
+{% block page_title %}Flat Management{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h3>All Flats</h3>
+  <a href="{% url 'admin_flat_create' %}" class="btn btn-primary">+ Add Flat</a>
+</div>
+
+<div class="glass-card table-card">
+  <div style="overflow-x: auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Flat Number</th>
+          <th>Block</th>
+          <th>Floor</th>
+          <th>Type</th>
+          <th>Owner</th>
+          <th>Base Maintenance</th>
+          <th>Occupancy</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for flat in flats %}
+        <tr>
+          <td><strong>{{ flat.flat_number }}</strong></td>
+          <td>{{ flat.block }}</td>
+          <td>{{ flat.floor }}</td>
+          <td>{{ flat.get_flat_type_display }}</td>
+          <td>{{ flat.owner_name }}</td>
+          <td>₹{{ flat.base_maintenance_amount }}</td>
+          <td>
+            {% if flat.is_occupied %}
+              <span class="status-badge badge-success">Occupied</span>
+            {% else %}
+              <span class="status-badge badge-muted">Vacant</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if flat.is_active %}
+              <span class="status-badge badge-success">Active</span>
+            {% else %}
+              <span class="status-badge badge-danger">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="actions-cell">
+            <a href="{% url 'admin_flat_edit' flat.pk %}" class="btn btn-sm btn-outline">Edit</a>
+            {% if flat.is_active %}
+            <form method="post" action="{% url 'admin_flat_deactivate' flat.pk %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deactivate this flat?')">Deactivate</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="empty-state">No flats found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Payment Receipt{% endblock %}
+{% block page_title %}Payment Receipt{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+  <div class="glass-card" style="padding: 2.5rem;" id="receipt-card">
+    <div style="text-align: center; border-bottom: 2px dashed var(--clr-border); padding-bottom: 1.5rem; margin-bottom: 2rem;">
+      <h2 style="margin: 0 0 0.5rem 0; letter-spacing: 1px;">DWELLMANAGER</h2>
+      <div style="color: var(--clr-muted); font-weight: 600; font-size: 1.2rem;">Payment Receipt</div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 2rem;">
+      <div>
+        <div style="margin-bottom: 0.5rem;"><strong>Receipt No:</strong> <span style="font-family: monospace;">{{ payment.receipt_ref }}</span></div>
+        <div style="margin-bottom: 0.5rem;"><strong>Payment ID:</strong> <span style="font-family: monospace;">#{{ payment.pk }}</span></div>
+      </div>
+      <div style="text-align: right;">
+        <div style="margin-bottom: 0.5rem;"><strong>Date:</strong> {{ payment.paid_at|date:"d M Y" }}</div>
+        <div style="margin-bottom: 0.5rem;"><strong>Status:</strong> <span style="color: var(--clr-success); font-weight: 800;">PAID</span></div>
+      </div>
+    </div>
+
+    <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: var(--radius-sm); margin-bottom: 2rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <div style="color: var(--clr-muted); font-size: 0.85rem; text-transform: uppercase;">Resident</div>
+          <div style="font-weight: 600;">{{ resident.full_name }}</div>
+        </div>
+        <div>
+          <div style="color: var(--clr-muted); font-size: 0.85rem; text-transform: uppercase;">Flat</div>
+          <div style="font-weight: 600;">{{ payment.flat }}</div>
+        </div>
+        <div style="grid-column: span 2;">
+          <div style="color: var(--clr-muted); font-size: 0.85rem; text-transform: uppercase;">Description</div>
+          <div style="font-weight: 600;">{{ payment.description|default:"Monthly Maintenance" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+      <tr style="border-bottom: 2px solid var(--clr-border);">
+        <th style="text-align: left; padding: 0.75rem 0;">Description</th>
+        <th style="text-align: right; padding: 0.75rem 0;">Amount</th>
+      </tr>
+      <tr style="border-bottom: 1px solid var(--clr-border);">
+        <td style="padding: 1rem 0;">{{ payment.billing_month }} — {{ payment.get_charge_type_display }}</td>
+        <td style="text-align: right; padding: 1rem 0; font-weight: 600;">₹{{ payment.amount }}</td>
+      </tr>
+      <tr>
+        <td style="padding: 1rem 0; font-weight: 700; font-size: 1.2rem;">Total Paid</td>
+        <td style="text-align: right; padding: 1rem 0; font-weight: 700; font-size: 1.2rem; color: var(--clr-success);">₹{{ payment.amount }}</td>
+      </tr>
+    </table>
+
+    <div style="text-align: center; color: var(--clr-muted); font-size: 0.9rem; margin-bottom: 2rem;">
+      Payment Method: <strong>{{ payment.payment_method }}</strong>
+    </div>
+
+    <div style="text-align: center; display: flex; gap: 1rem; justify-content: center;">
+      <button onclick="window.print()" class="btn btn-primary no-print">Print Receipt</button>
+      <a href="{% url 'resident_billing' %}" class="btn btn-outline no-print">Back to Billing</a>
+    </div>
+  </div>
+</div>
+
+<style>
+@media print {
+  body * { visibility: hidden; }
+  #receipt-card, #receipt-card * { visibility: visible; }
+  #receipt-card { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; padding: 2rem; background: white; color: black; }
+  .no-print { display: none !important; }
+  .sidebar, .topbar, .messages-container { display: none !important; }
+}
+</style>
+{% endblock %}

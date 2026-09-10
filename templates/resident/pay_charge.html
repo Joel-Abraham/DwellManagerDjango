@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Pay Charge{% endblock %}
+{% block page_title %}Pay Charge{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <a href="{% url 'resident_billing' %}" class="btn btn-outline">← Back to Billing</a>
+</div>
+
+<div class="glass-card form-card" style="max-width: 500px;">
+  <h4 style="margin-bottom: 1.5rem;">Payment Details</h4>
+
+  <div class="detail-grid" style="margin-bottom: 2rem;">
+    <div class="detail-item">
+      <span class="detail-label">Description</span>
+      <span class="detail-value">{{ payment.description|default:"Monthly Maintenance" }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Charge Type</span>
+      <span class="detail-value">{{ payment.get_charge_type_display }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Billing Month</span>
+      <span class="detail-value">{{ payment.billing_month }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Amount</span>
+      <span class="detail-value" style="font-size: 1.5rem; font-weight: 700; color: #fca5a5;">₹{{ payment.amount }}</span>
+    </div>
+  </div>
+
+  <form method="post" class="app-form">
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="form-label">Payment Method</label>
+      <select name="payment_method" class="form-input">
+        <option value="UPI">UPI</option>
+        <option value="Net Banking">Net Banking</option>
+        <option value="Cash">Cash</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-success btn-full" onclick="return confirm('Confirm payment of ₹{{ payment.amount }}?')">
+        Confirm Payment — ₹{{ payment.amount }}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

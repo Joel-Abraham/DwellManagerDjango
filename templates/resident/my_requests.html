@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}My Requests{% endblock %}
+{% block page_title %}My Maintenance Requests{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h3>My Requests</h3>
+  <a href="{% url 'resident_request_maintenance' %}" class="btn btn-primary">+ New Request</a>
+</div>
+
+{% if request_data %}
+<div class="request-grid">
+  {% for item in request_data %}
+  <div class="glass-card request-card">
+    <div class="request-header">
+      <div>
+        <div class="request-category">{{ item.request.get_category_display }}</div>
+        <div class="request-id">#{{ item.request.pk }}</div>
+      </div>
+      {% if item.request.status == 'Pending' %}
+        <span class="status-badge badge-warning">Pending</span>
+      {% elif item.request.status == 'Assigned' %}
+        <span class="status-badge badge-info">Assigned</span>
+      {% elif item.request.status == 'In Progress' %}
+        <span class="status-badge badge-info">In Progress</span>
+      {% elif item.request.status == 'Completed' %}
+        <span class="status-badge badge-success">Completed</span>
+      {% endif %}
+    </div>
+
+    <div class="request-desc">{{ item.request.description }}</div>
+
+    <div class="request-details">
+      <div class="detail-row">
+        <span class="detail-label">Created</span>
+        <span>{{ item.request.created_at|date:"d M Y" }}</span>
+      </div>
+      {% if item.request.assigned_to %}
+      <div class="detail-row">
+        <span class="detail-label">Assigned To</span>
+        <span>{{ item.request.assigned_to }}</span>
+      </div>
+      {% endif %}
+      {% if item.request.scheduled_date %}
+      <div class="detail-row">
+        <span class="detail-label">Scheduled</span>
+        <span>{{ item.request.scheduled_date }}</span>
+      </div>
+      {% endif %}
+      {% if item.request.fee_amount %}
+      <div class="detail-row">
+        <span class="detail-label">Fee</span>
+        <span>₹{{ item.request.fee_amount }}</span>
+      </div>
+      {% endif %}
+
+      {% if item.charges %}
+      <div style="border-top: 1px dashed var(--clr-border); margin-top: 0.75rem; padding-top: 0.75rem;">
+        <div class="detail-label" style="margin-bottom: 0.5rem;">Associated Charges</div>
+        {% for charge in item.charges %}
+        <div class="detail-row">
+          <span>₹{{ charge.amount }} — {{ charge.description }}</span>
+          {% if charge.status == 'Paid' %}
+            <span class="status-badge badge-success" style="font-size: 0.7rem;">Paid</span>
+          {% else %}
+            <span class="status-badge badge-danger" style="font-size: 0.7rem;">Unpaid</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="glass-card" style="padding: 3rem; text-align: center; color: var(--clr-muted);">
+  You have no maintenance requests. <a href="{% url 'resident_request_maintenance' %}" style="color: var(--clr-accent);">Create one</a>.
+</div>
+{% endif %}
+{% endblock %}

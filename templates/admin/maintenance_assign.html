@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Assign Maintenance Request{% endblock %}
+{% block page_title %}Assign Request #{{ maint_request.pk }}{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <a href="{% url 'admin_maintenance_list' %}" class="btn btn-outline">← Back to Requests</a>
+</div>
+
+<div class="glass-card form-card" style="margin-bottom: 1.5rem;">
+  <h4 style="margin-bottom: 1rem;">Request Details</h4>
+  <div class="detail-grid">
+    <div class="detail-item">
+      <span class="detail-label">Flat</span>
+      <span class="detail-value">{{ maint_request.flat }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Category</span>
+      <span class="detail-value">{{ maint_request.get_category_display }}</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Status</span>
+      <span class="status-badge badge-warning">{{ maint_request.status }}</span>
+    </div>
+    <div class="detail-item" style="grid-column: 1 / -1;">
+      <span class="detail-label">Description</span>
+      <span class="detail-value">{{ maint_request.description }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card form-card">
+  <h4 style="margin-bottom: 1rem;">Assignment</h4>
+  <form method="post" class="app-form">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
+        {% for error in field.errors %}
+          <div class="field-error">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    {% endfor %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Assign Request</button>
+      <a href="{% url 'admin_maintenance_list' %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

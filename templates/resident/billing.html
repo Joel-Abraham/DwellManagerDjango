@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}My Billing{% endblock %}
+{% block page_title %}Billing — {{ flat }}{% endblock %}
+
+{% block content %}
+<!-- Total Due -->
+<div class="glass-card stat-card" style="margin-bottom: 2rem; border-left: 4px solid var(--clr-danger);">
+  <div class="stat-info">
+    <div class="stat-label">TOTAL AMOUNT DUE</div>
+    <div class="stat-value" style="color: #fca5a5; font-size: 2rem;">₹{{ total_due }}</div>
+  </div>
+</div>
+
+<!-- Outstanding Charges -->
+<div class="section-header">
+  <h3>Outstanding Charges</h3>
+</div>
+
+{% if outstanding %}
+<div class="billing-grid">
+  {% for p in outstanding %}
+  <div class="glass-card billing-card">
+    <div class="billing-badge badge-danger">UNPAID</div>
+    <div class="billing-meta">{{ p.billing_month }}</div>
+    <div class="billing-type">
+      {% if p.charge_type == 'Base Maintenance' %}
+        <span class="status-badge badge-info" style="font-size: 0.7rem;">Base Maintenance</span>
+      {% else %}
+        <span class="status-badge badge-warning" style="font-size: 0.7rem;">Additional Charge</span>
+      {% endif %}
+    </div>
+    <div class="billing-desc">{{ p.description|default:"Monthly Maintenance" }}</div>
+    <div class="billing-amount">₹{{ p.amount }}</div>
+    <div class="billing-date">Created: {{ p.created_at|date:"d M Y" }}</div>
+    <a href="{% url 'resident_pay_charge' p.pk %}" class="btn btn-success btn-full" style="margin-top: auto;">Pay Now</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="glass-card" style="padding: 2rem; text-align: center; color: var(--clr-muted); margin-bottom: 2rem;">
+  No outstanding charges! You're all caught up. 🎉
+</div>
+{% endif %}
+
+<!-- Paid History -->
+<div class="section-header" style="margin-top: 2rem;">
+  <h3>Payment History</h3>
+</div>
+
+{% if paid %}
+<div class="glass-card table-card">
+  <div style="overflow-x: auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Charge Type</th>
+          <th>Amount</th>
+          <th>Month</th>
+          <th>Paid Date</th>
+          <th>Method</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in paid %}
+        <tr>
+          <td>{{ p.description|default:"Monthly Maintenance" }}</td>
+          <td>
+            {% if p.charge_type == 'Base Maintenance' %}
+              <span class="status-badge badge-info" style="font-size: 0.7rem;">Base</span>
+            {% else %}
+              <span class="status-badge badge-warning" style="font-size: 0.7rem;">Additional</span>
+            {% endif %}
+          </td>
+          <td>₹{{ p.amount }}</td>
+          <td>{{ p.billing_month }}</td>
+          <td>{{ p.paid_at|date:"d M Y" }}</td>
+          <td>{{ p.payment_method|default:"-" }}</td>
+          <td><span class="status-badge badge-success">Paid</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="glass-card" style="padding: 2rem; text-align: center; color: var(--clr-muted);">
+  No payment history yet.
+</div>
+{% endif %}
+{% endblock %}

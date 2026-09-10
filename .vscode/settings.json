@@ -1,0 +1,10 @@
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}\\venv\\Scripts\\python.exe",
+    "python.formatting.provider": "black",
+    "python.envFile": "${workspaceFolder}/.env",
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "**/*.html": "html",
+        "**/templates/**/*.html": "django-html"
+    }
+}

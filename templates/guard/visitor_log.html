@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Visitor Log{% endblock %}
+{% block page_title %}Visitor History{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h3>Visitor Log</h3>
+  <a href="{% url 'guard_dashboard' %}" class="btn btn-outline">← Back to Dashboard</a>
+</div>
+
+<!-- Search -->
+<div class="glass-card filter-card">
+  <form method="get" class="filter-form">
+    <div class="filter-group" style="flex: 2;">
+      <label class="form-label">Search</label>
+      <input type="text" name="search" value="{{ search }}" class="form-input" placeholder="Name, contact, flat, vehicle number…" />
+    </div>
+    <div class="filter-group">
+      <label class="form-label">Date</label>
+      <input type="date" name="date" value="{{ date_filter }}" class="form-input" />
+    </div>
+    <div class="filter-group" style="display: flex; gap: 0.5rem; align-self: flex-end;">
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      <a href="{% url 'guard_visitor_log' %}" class="btn btn-outline btn-sm">Clear</a>
+    </div>
+  </form>
+</div>
+
+<div class="glass-card table-card">
+  <div style="overflow-x: auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Visitor</th>
+          <th>Contact</th>
+          <th>Flat</th>
+          <th>Purpose</th>
+          <th>Vehicle</th>
+          <th>Check-In</th>
+          <th>Check-Out</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in visitors %}
+        <tr>
+          <td><strong>{{ v.full_name }}</strong></td>
+          <td>{{ v.contact_number }}</td>
+          <td>{{ v.target_flat }}</td>
+          <td>{{ v.get_purpose_display }}</td>
+          <td>
+            {% if v.vehicle_number %}
+              {{ v.vehicle_number }}
+              {% if v.vehicle_type and v.vehicle_type != 'None' %}({{ v.vehicle_type }}){% endif %}
+            {% else %}-{% endif %}
+          </td>
+          <td>{{ v.check_in_time|date:"d M Y, H:i" }}</td>
+          <td>{{ v.exit_time|date:"d M Y, H:i"|default:"-" }}</td>
+          <td>
+            {% if v.status == 'Inside' %}
+              <span class="status-badge badge-success">Inside</span>
+            {% else %}
+              <span class="status-badge badge-muted">Checked-Out</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty-state">No visitor records found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

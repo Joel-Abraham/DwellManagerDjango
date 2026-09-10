@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Resident Management{% endblock %}
+{% block page_title %}Resident Management{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h3>All Residents</h3>
+  <a href="{% url 'admin_resident_create' %}" class="btn btn-primary">+ Add Resident</a>
+</div>
+
+<!-- Filters -->
+<div class="glass-card filter-card">
+  <form method="get" class="filter-form">
+    <div class="filter-group">
+      <label class="form-label">Block</label>
+      <select name="block" class="form-input" onchange="this.form.submit()">
+        <option value="">All Blocks</option>
+        {% for b in blocks %}
+          <option value="{{ b }}" {% if current_block == b %}selected{% endif %}>{{ b }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="form-label">Flat</label>
+      <select name="flat" class="form-input" onchange="this.form.submit()">
+        <option value="">All Flats</option>
+        {% for f in flats %}
+          <option value="{{ f.pk }}" {% if current_flat == f.pk|stringformat:"d" %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="form-label">Status</label>
+      <select name="status" class="form-input" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        {% for val, label in status_choices %}
+          <option value="{{ val }}" {% if current_status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <a href="{% url 'admin_resident_list' %}" class="btn btn-outline btn-sm" style="align-self: flex-end;">Clear</a>
+  </form>
+</div>
+
+<div class="glass-card table-card">
+  <div style="overflow-x: auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Username</th>
+          <th>Flat</th>
+          <th>Contact</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Move-in Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for resident in residents %}
+        <tr>
+          <td><strong>{{ resident.full_name }}</strong></td>
+          <td>{{ resident.username }}</td>
+          <td>{{ resident.flat|default:"-" }}</td>
+          <td>{{ resident.contact_number|default:"-" }}</td>
+          <td>{{ resident.email|default:"-" }}</td>
+          <td>
+            {% if resident.status == 'Active' %}
+              <span class="status-badge badge-success">Active</span>
+            {% elif resident.status == 'Inactive' %}
+              <span class="status-badge badge-danger">Inactive</span>
+            {% else %}
+              <span class="status-badge badge-muted">Moved-out</span>
+            {% endif %}
+          </td>
+          <td>{{ resident.move_in_date|default:"-" }}</td>
+          <td class="actions-cell">
+            <a href="{% url 'admin_resident_edit' resident.pk %}" class="btn btn-sm btn-outline">Edit</a>
+            <a href="{% url 'admin_resident_payments' resident.pk %}" class="btn btn-sm btn-outline" style="border-color: var(--clr-info); color: var(--clr-info);">Payments</a>
+            {% if resident.status == 'Active' %}
+            <form method="post" action="{% url 'admin_resident_deactivate' resident.pk %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deactivate this resident?')">Deactivate</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty-state">No residents found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

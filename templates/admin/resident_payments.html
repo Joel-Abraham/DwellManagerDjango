@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Payments — {{ resident.full_name }}{% endblock %}
+{% block page_title %}Payment History — {{ resident.full_name }}{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h3>{{ resident.full_name }} &mdash; {{ resident.flat }}</h3>
+    <p style="color: var(--clr-muted); margin-top: 0.25rem;">Complete billing history for this resident's flat</p>
+  </div>
+  <a href="{% url 'admin_resident_list' %}" class="btn btn-outline">← Back to Residents</a>
+</div>
+
+<div class="glass-card stat-card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--clr-danger);">
+  <div class="stat-info">
+    <div class="stat-label">Total Outstanding Balance</div>
+    <div class="stat-value" style="color: #fca5a5;">₹{{ total_outstanding }}</div>
+  </div>
+</div>
+
+<div class="glass-card table-card">
+  <div style="overflow-x: auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Billing Month</th>
+          <th>Charge Type</th>
+          <th>Description</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Paid Date</th>
+          <th>Running Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in payment_rows %}
+        <tr>
+          <td>#{{ row.payment.pk }}</td>
+          <td>{{ row.payment.billing_month }}</td>
+          <td>
+            {% if row.payment.charge_type == 'Base Maintenance' %}
+              <span class="status-badge badge-info">Base Maintenance</span>
+            {% else %}
+              <span class="status-badge badge-warning">Additional Charge</span>
+            {% endif %}
+          </td>
+          <td>{{ row.payment.description|default:"-" }}</td>
+          <td>₹{{ row.payment.amount }}</td>
+          <td>
+            {% if row.payment.status == 'Paid' %}
+              <span class="status-badge badge-success">Paid</span>
+            {% else %}
+              <span class="status-badge badge-danger">Unpaid</span>
+            {% endif %}
+          </td>
+          <td>{{ row.payment.paid_at|date:"d M Y"|default:"-" }}</td>
+          <td style="font-weight: 600;">₹{{ row.running_balance }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty-state">No billing records found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

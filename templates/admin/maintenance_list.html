@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Maintenance Requests{% endblock %}
+{% block page_title %}Maintenance Requests{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h3>All Maintenance Requests</h3>
+</div>
+
+<div class="glass-card table-card">
+  <div style="overflow-x: auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Flat</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Assigned To</th>
+          <th>Scheduled</th>
+          <th>Fee</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for req in maintenance_requests %}
+        <tr>
+          <td>#{{ req.pk }}</td>
+          <td>{{ req.flat }}</td>
+          <td>{{ req.get_category_display }}</td>
+          <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ req.description }}</td>
+          <td>
+            {% if req.status == 'Pending' %}
+              <span class="status-badge badge-warning">Pending</span>
+            {% elif req.status == 'Assigned' %}
+              <span class="status-badge badge-info">Assigned</span>
+            {% elif req.status == 'In Progress' %}
+              <span class="status-badge badge-info">In Progress</span>
+            {% elif req.status == 'Completed' %}
+              <span class="status-badge badge-success">Completed</span>
+            {% endif %}
+          </td>
+          <td>{{ req.assigned_to|default:"-" }}</td>
+          <td>{{ req.scheduled_date|default:"-" }}</td>
+          <td>{% if req.fee_amount %}₹{{ req.fee_amount }}{% else %}-{% endif %}</td>
+          <td>{{ req.created_at|date:"d M Y" }}</td>
+          <td>
+            {% if req.status == 'Pending' %}
+              <a href="{% url 'admin_maintenance_assign' req.pk %}" class="btn btn-sm btn-primary">Assign</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="empty-state">No maintenance requests found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

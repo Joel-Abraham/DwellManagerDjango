@@ -1,0 +1,58 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Install Dependencies",
+            "type": "shell",
+            "command": ".\\venv\\Scripts\\pip.exe install -r requirements.txt",
+            "problemMatcher": []
+        },
+        {
+            "label": "Migrate",
+            "type": "shell",
+            "command": ".\\venv\\Scripts\\python.exe manage.py migrate",
+            "problemMatcher": []
+        },
+        {
+            "label": "Seed Database",
+            "type": "shell",
+            "command": ".\\venv\\Scripts\\python.exe seed_django.py",
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    "PYTHONIOENCODING": "utf-8"
+                }
+            }
+        },
+        {
+            "label": "Run Server",
+            "type": "shell",
+            "command": ".\\venv\\Scripts\\python.exe manage.py runserver 127.0.0.1:8000",
+            "problemMatcher": [],
+            "isBackground": true
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": ".\\venv\\Scripts\\python.exe manage.py test api -v 2",
+            "problemMatcher": []
+        },
+        {
+            "label": "Reset Database",
+            "type": "shell",
+            "command": "Remove-Item -Path db.sqlite3 -Force -ErrorAction Ignore",
+            "problemMatcher": []
+        },
+        {
+            "label": "Full Reset + Seed + Serve",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Reset Database",
+                "Migrate",
+                "Seed Database",
+                "Run Server"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
