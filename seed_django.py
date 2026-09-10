@@ -98,6 +98,34 @@ def seed():
         )
         print("   ✓ Resident 2 created (resident2 / resident123) → B-101")
 
+    if not Resident.objects.filter(username="resident3").exists():
+        Resident.objects.create_user(
+            username="resident3",
+            password="resident123",
+            full_name="Sunil Verma",
+            role=UserRole.RESIDENT,
+            flat=flats["A-201"],
+            contact_number="9876543212",
+            email="sunil@example.com",
+            move_in_date=date(2023, 3, 10),
+            status=ResidentStatus.INACTIVE,
+        )
+        print("   ✓ Resident 3 created (resident3 / resident123) → A-201 [Inactive]")
+
+    if not Resident.objects.filter(username="resident4").exists():
+        Resident.objects.create_user(
+            username="resident4",
+            password="resident123",
+            full_name="Meera Joshi",
+            role=UserRole.RESIDENT,
+            flat=flats["B-102"],
+            contact_number="9876543213",
+            email="meera@example.com",
+            move_in_date=date(2022, 11, 1),
+            status=ResidentStatus.MOVED_OUT,
+        )
+        print("   ✓ Resident 4 created (resident4 / resident123) → B-102 [Moved-out]")
+
     # ── MAINTENANCE REQUESTS ─────────────────────────────
     # Pending request for A-101
     mr1, _ = MaintenanceRequest.objects.get_or_create(
@@ -272,8 +300,10 @@ def seed():
     print("Login credentials:")
     print("  Admin    →  admin / admin123")
     print("  Guard    →  guard1 / guard123")
-    print("  Resident →  resident1 / resident123  (Flat A-101)")
-    print("  Resident →  resident2 / resident123  (Flat B-101)")
+    print("  Resident →  resident1 / resident123  (Flat A-101) [Active]")
+    print("  Resident →  resident2 / resident123  (Flat B-101) [Active]")
+    print("  Resident →  resident3 / resident123  (Flat A-201) [Inactive]")
+    print("  Resident →  resident4 / resident123  (Flat B-102) [Moved-out]")
     print("─" * 40)
 
 

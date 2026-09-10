@@ -103,6 +103,10 @@ class Flat(models.Model):
         validators=[MinValueValidator(Decimal("0.00"))],
     )
     is_active = models.BooleanField(default=True)
+    manually_marked_occupied = models.BooleanField(
+        default=False,
+        help_text="Use this if a resident is living here but doesn't have a portal account yet.",
+    )
 
     class Meta:
         unique_together = ["flat_number", "block"]
@@ -113,11 +117,12 @@ class Flat(models.Model):
 
     @property
     def is_occupied(self):
-        """True when at least one Active resident is linked to this flat."""
-        return self.residents.filter(
+        """True when at least one Active resident is linked, or manually marked."""
+        has_active_resident = self.residents.filter(
             role=UserRole.RESIDENT,
             status=ResidentStatus.ACTIVE,
         ).exists()
+        return has_active_resident or self.manually_marked_occupied
 
 
 # ============================================================

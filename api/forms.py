@@ -47,6 +47,7 @@ class FlatForm(forms.ModelForm):
             "flat_type",
             "owner_name",
             "base_maintenance_amount",
+            "manually_marked_occupied",
         ]
         widgets = {
             "flat_number": forms.TextInput(
@@ -70,6 +71,12 @@ class FlatForm(forms.ModelForm):
                     "min": "0",
                 }
             ),
+            "manually_marked_occupied": forms.CheckboxInput(
+                attrs={"class": "form-checkbox"}
+            ),
+        }
+        labels = {
+            "manually_marked_occupied": "Mark occupied (no portal account)",
         }
 
     def clean_base_maintenance_amount(self):
@@ -101,6 +108,7 @@ class ResidentForm(forms.ModelForm):
             "contact_number",
             "email",
             "move_in_date",
+            "status",
         ]
         widgets = {
             "username": forms.TextInput(attrs={"class": "form-input"}),
@@ -111,6 +119,7 @@ class ResidentForm(forms.ModelForm):
             "move_in_date": forms.DateInput(
                 attrs={"class": "form-input", "type": "date"}
             ),
+            "status": forms.Select(attrs={"class": "form-input"}),
         }
 
     def __init__(self, *args, **kwargs):
