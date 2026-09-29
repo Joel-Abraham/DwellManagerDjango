@@ -61,6 +61,7 @@
           <th>Contact</th>
           <th>Email</th>
           <th>Status</th>
+          <th>Occupancy</th>
           <th>Move-in Date</th>
           <th>Actions</th>
         </tr>
@@ -87,6 +88,35 @@
               <span class="status-badge badge-muted">Moved-out</span>
             {% endif %}
           </td>
+          <td>
+            {% if resident.flat_id %}
+              {% if resident.is_occupied %}
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="status-badge badge-success">Occupied</span>
+                  <form method="post" action="{% url 'admin_toggle_occupancy' resident.flat_id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="set_occupied" value="0">
+                    <button type="submit" class="btn btn-sm btn-outline" style="padding: 3px 8px; font-size: 0.7rem;" onclick="return confirm('Mark this flat as vacant?')" title="Mark as Vacant">
+                      Set Vacant
+                    </button>
+                  </form>
+                </div>
+              {% else %}
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="status-badge badge-muted">Vacant</span>
+                  <form method="post" action="{% url 'admin_toggle_occupancy' resident.flat_id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="set_occupied" value="1">
+                    <button type="submit" class="btn btn-sm btn-outline" style="padding: 3px 8px; font-size: 0.7rem; border-color: var(--clr-success); color: var(--clr-success);" onclick="return confirm('Mark this flat as occupied?')" title="Mark as Occupied">
+                      Set Occupied
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+            {% else %}
+              <span style="color: var(--clr-muted);">-</span>
+            {% endif %}
+          </td>
           <td>{{ resident.move_in_date|default:"-" }}</td>
           <td class="actions-cell">
             {% if resident.has_portal %}
@@ -99,12 +129,12 @@
             </form>
             {% endif %}
             {% else %}
-            <span class="text-muted" style="font-size: 0.85rem;">—</span>
+            <a href="{% url 'admin_flat_edit' resident.flat_id %}" class="btn btn-sm btn-outline" title="Edit flat details">Edit Flat</a>
             {% endif %}
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="empty-state">No residents found.</td></tr>
+        <tr><td colspan="9" class="empty-state">No residents found.</td></tr>
         {% endfor %}
       </tbody>
     </table>

@@ -14,6 +14,7 @@ from .views import (
     admin_resident_edit,
     admin_resident_deactivate,
     admin_resident_payments,
+    admin_toggle_occupancy,
     admin_maintenance_list,
     admin_maintenance_assign,
     guard_dashboard,
@@ -58,6 +59,7 @@ urlpatterns = [
     path("admin/residents/<int:resident_id>/edit/", admin_resident_edit, name="admin_resident_edit"),
     path("admin/residents/<int:resident_id>/deactivate/", admin_resident_deactivate, name="admin_resident_deactivate"),
     path("admin/residents/<int:resident_id>/payments/", admin_resident_payments, name="admin_resident_payments"),
+    path("admin/flats/<int:flat_id>/toggle-occupancy/", admin_toggle_occupancy, name="admin_toggle_occupancy"),
     # Admin — Maintenance
     path("admin/maintenance/", admin_maintenance_list, name="admin_maintenance_list"),
     path("admin/maintenance/<int:request_id>/assign/", admin_maintenance_assign, name="admin_maintenance_assign"),

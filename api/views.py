@@ -196,6 +196,7 @@ def admin_resident_list(request):
             "full_name": r.full_name,
             "username": r.username,
             "flat": r.flat,
+            "flat_id": r.flat.pk if r.flat else None,
             "contact_number": r.contact_number,
             "email": r.email,
             "status": r.status,
@@ -209,6 +210,7 @@ def admin_resident_list(request):
             "full_name": flat.owner_name,
             "username": "-",
             "flat": flat,
+            "flat_id": flat.pk,
             "contact_number": "-",
             "email": "-",
             "status": "Active" if flat.is_occupied else "Inactive",
@@ -284,6 +286,23 @@ def admin_resident_deactivate(request, resident_id):
         resident.status = ResidentStatus.INACTIVE
         resident.save()
         messages.success(request, f"Resident {resident.full_name} deactivated.")
+    return redirect("admin_resident_list")
+
+
+@admin_required
+def admin_toggle_occupancy(request, flat_id):
+    """Toggle the manually_marked_occupied flag on a flat."""
+    flat = get_object_or_404(Flat, pk=flat_id)
+    if request.method == "POST":
+        new_status = request.POST.get("set_occupied")
+        if new_status == "1":
+            flat.manually_marked_occupied = True
+            flat.save()
+            messages.success(request, f"Flat {flat} marked as occupied.")
+        elif new_status == "0":
+            flat.manually_marked_occupied = False
+            flat.save()
+            messages.success(request, f"Flat {flat} marked as vacant.")
     return redirect("admin_resident_list")
 
 
